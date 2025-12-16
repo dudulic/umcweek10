@@ -4,10 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class MemberResponseDTO {
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class JoinResultDTO {
+        private Long memberId;
+        private LocalDateTime createdAt;
+    }
 
     @Builder
     @Getter
@@ -34,7 +45,6 @@ public class MemberResponseDTO {
         private Boolean isLast;
     }
 
-    // 진행 중인 미션 DTO는 StoreResponseDTO.MissionDTO 등을 재사용하거나 별도 생성
     @Builder
     @Getter
     @NoArgsConstructor
@@ -43,7 +53,7 @@ public class MemberResponseDTO {
         private Long missionId;
         private String storeName;
         private Integer reward;
-        private String status; // CHALLENGING, COMPLETE
+        private String status;
     }
 
     @Builder

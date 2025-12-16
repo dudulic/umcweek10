@@ -3,7 +3,9 @@ package com.example.umc_week10_mission.web.controller;
 import com.example.umc_week10_mission.converter.MemberConverter;
 import com.example.umc_week10_mission.domain.Review;
 import com.example.umc_week10_mission.domain.mapping.MemberMission;
+import com.example.umc_week10_mission.dto.MemberReqDTO;
 import com.example.umc_week10_mission.dto.MemberResponseDTO;
+import com.example.umc_week10_mission.service.MemberCommandService;
 import com.example.umc_week10_mission.service.MemberService;
 import com.example.umc_week10_mission.validation.annotation.CheckPage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +26,12 @@ import org.springframework.web.bind.annotation.*;
 public class MemberRestController {
 
     private final MemberService memberService;
+    private final MemberCommandService memberCommandService;
+
+    @PostMapping("/sign-up")
+    public MemberResponseDTO.JoinResultDTO signup(@RequestBody @Valid MemberReqDTO.JoinDTO request) {
+        return memberCommandService.signup(request);
+    }
 
     @Operation(summary = "내가 작성한 리뷰 목록 조회 API", description = "내가 작성한 리뷰들의 목록을 조회하는 API이며, 페이징을 포함합니다.")
     @ApiResponses({ @ApiResponse(responseCode = "200", description = "OK, 성공") })

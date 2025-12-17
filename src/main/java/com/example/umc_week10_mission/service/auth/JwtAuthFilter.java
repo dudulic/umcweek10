@@ -1,31 +1,53 @@
-package com.example.umc_week10_mission.api.exception;
+package com.example.umc_week10_mission.service.auth;
 
-import com.example.umc_week10_mission.api.ApiResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.stereotype.Component;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
-public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+@RequiredArgsConstructor
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
-    public void commence(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException authException
-    ) throws IOException {
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        // GeneralErrorCode.UNAUTHORIZED 대신 하드코딩된 예시 코드 사용 (실제 구현시 ErrorCode Enum 사용 권장)
-        ApiResponse<Void> errorResponse = ApiResponse.onFailure("COMMON401", "인증이 필요합니다.", null);
+        String token = request.getHeader("Authorization");
 
-        objectMapper.writeValue(response.getOutputStream(), errorResponse);
+        if (token == null || !token.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        token = token.replace("Bearer ", "");
+
+        if (jwtUtil.isValid(token)) {
+            String email = jwtUtil.getEmail(token);
+            UserDetails user = customUserDetailsService.loadUserByUsername(email);
+
+            Authentication auth = new UsernamePasswordAuthenticationToken(
+                    user,
+                    null,
+                    user.getAuthorities()
+            );
+            SecurityContextHolder.getContext().setAuthentication(auth);
+        }
+
+        filterChain.doFilter(request, response);
     }
 }

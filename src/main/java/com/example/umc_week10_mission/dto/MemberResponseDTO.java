@@ -20,6 +20,16 @@ public class MemberResponseDTO {
         private LocalDateTime createdAt;
     }
 
+    // 로그인 응답 DTO (추가됨)
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LoginDTO {
+        private Long memberId;
+        private String accessToken;
+    }
+
     @Builder
     @Getter
     @NoArgsConstructor

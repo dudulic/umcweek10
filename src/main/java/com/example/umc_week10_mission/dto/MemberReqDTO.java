@@ -14,6 +14,11 @@ public class MemberReqDTO {
             @NotNull LocalDate birth,
             @NotBlank String address,
             @NotBlank String specAddress
-            // Gender gender, List<Long> preferCategory 등 필요한 필드 추가
+    ){}
+
+    // 로그인 요청 DTO 추가
+    public record LoginDTO(
+            @NotBlank String email,
+            @NotBlank String password
     ){}
 }
